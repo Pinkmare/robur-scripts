@@ -1,3 +1,5 @@
+if Player.CharName ~= "Brand" then return end
+
 require("common.log")
 module("Pinkmare Brand", package.seeall, log.setup)
 
@@ -298,13 +300,12 @@ end
 
 
 function OnLoad()
-    if Player.CharName == "Brand" then
-        Brand.LoadMenu()
-        for eventName, eventId in pairs(Enums.Events) do
-            if Brand[eventName] then
-                EventManager.RegisterCallback(eventId, Brand[eventName])
-            end
+    Brand.LoadMenu()
+    for eventName, eventId in pairs(Enums.Events) do
+		if Brand[eventName] then
+			EventManager.RegisterCallback(eventId, Brand[eventName])
         end
     end
-    return true
+	
+	return true
 end
