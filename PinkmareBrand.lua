@@ -1,8 +1,7 @@
+if Player.CharName ~= "Brand" then return end
+
 require("common.log")
 module("Pinkmare Brand", package.seeall, log.setup)
-
-local clock = os.clock
-local insert = table.insert
 
 local _SDK = _G.CoreEx
 local Console, ObjManager, EventManager, Geometry, Input, Renderer, Enums, Game = _SDK.Console, _SDK.ObjectManager, _SDK.EventManager, _SDK.Geometry, _SDK.Input, _SDK.Renderer, _SDK.Enums, _SDK.Game
@@ -59,8 +58,6 @@ function Brand.LoadMenu()
 			
             Menu.Checkbox("Combo.UseE", "Use E", true)
 			Menu.Checkbox("Combo.UseR", "Use R", true)
-			Menu.Text("")
-			Menu.Checkbox("Combo.Burst", "Auto Burst Combo", false)
 
             Menu.NextColumn()
 
@@ -105,14 +102,6 @@ function Brand.Rdmg()
 	return (100 + (spells._R:GetLevel() - 1) * 100) + (0.25 * Player.TotalAP)
 end
 
-function Brand.BurstCombo()
-	local QBurst = Brand.Qdmg()
-	local WBurst = Brand.Wdmg()
-	local EBurst = Brand.Edmg()
-	local RBurst = Brand.Rdmg()
-	return WBurst + QBurst + EBurst + RBurst
-end
-
 function Brand.OnTick()
 	if Brand.KsQ() then return end
 	if Brand.KsW() then return end
@@ -149,8 +138,6 @@ function Brand.OnTick()
 			end
 		end	
 	end
-	
-	if Brand.BurstMode() then return end
 end
 
 function Brand.OnBuffGain(target, buffInst)
@@ -262,7 +249,7 @@ function Brand.KsR()
 end
 
 function Brand.OnDraw() 
-if Menu.Get("Draw.Q.Enabled") then
+	if Menu.Get("Draw.Q.Enabled") then
         Renderer.DrawCircle3D(Player.Position, spells._Q.Range, 25, 2, Menu.Get("Draw.Q.Color"))
     end
     if Menu.Get("Draw.W.Enabled") then
@@ -276,35 +263,13 @@ if Menu.Get("Draw.Q.Enabled") then
     end
 end
 
-function Brand.BurstMode()
-	if Menu.Get("Combo.Burst") then
-		local FullBurst = Brand.BurstCombo()
-		for k,target in ipairs(Brand.GetTargets(1100)) do
-			local Burst = DmgLib.CalculateMagicalDamage(Player, target, FullBurst)
-			local health = spells._R:GetKillstealHealth(target)
-			if Burst > health then
-				if spells._W:IsReady() and spells._W:Cast(target) then
-				end
-				if spells._Q:IsReady() and spells._Q:Cast() then
-				end
-				if spells._E:IsReady() and spells._E:Cast(target) then
-				end
-				if spells._R:IsReady() and spells._R:Cast(target) then
-				end
-			end
-		end
-	end
-end
-
-
 function OnLoad()
-    if Player.CharName == "Brand" then
-        Brand.LoadMenu()
-        for eventName, eventId in pairs(Enums.Events) do
-            if Brand[eventName] then
-                EventManager.RegisterCallback(eventId, Brand[eventName])
-            end
+    Brand.LoadMenu()
+    for eventName, eventId in pairs(Enums.Events) do
+		if Brand[eventName] then
+			EventManager.RegisterCallback(eventId, Brand[eventName])
         end
     end
-    return true
+	
+	return true
 end
